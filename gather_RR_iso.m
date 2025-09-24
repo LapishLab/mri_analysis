@@ -1,4 +1,8 @@
 clear
+
+%% Colors
+ colors = colororder;
+
 %% Load RR
 path = 'C:\Users\daswyga\OneDrive - Indiana University\fMRI\data\MRI';
 RR = loadRRcsvRecursive(path, '_RR.csv');
@@ -15,63 +19,74 @@ end
 
 %% Interpolate times to common reference
 [common_time, rates, iso] = common_rr_time(start_times);
+common_time = common_time/60; % convert to minutes
 
 
 %% Plot time vs. RR
-figure(1)
-imagesc(rates)
-c = colorbar;
-xlabel('time (s)')
-ylabel('rat number')
-c.Label.String = 'Respiratory rate';
-%% raw values
+% figure(1)
+% imagesc(rates)
+% c = colorbar;
+% xlabel('time (s)')
+% ylabel('rat number')
+% c.Label.String = 'Respiratory rate';
+%% resp rate and iso
 figure(2);  theme('light'); clf; hold on
-shadedErrorBar(common_time,rates, {@mean,@sem})
-xlabel('Time relative to fMRI start (s)')
-ylabel('Respiratory rate (/minute)')
+
+% respiratory rate on left y-axis
+yyaxis left
+shadedErrorBar(common_time,rates, {@mean,@sem}, 'lineProps',{'Color', colors(1,:), 'LineWidth',1.5})
+ylabel('Respiratory rate (breaths/minute)', FontWeight='bold')
+ylim([0,60])
+
+% plot ISO% on right y-axis
+yyaxis right
+shadedErrorBar(common_time,iso, {@mean,@sem}, 'lineProps',{'Color', colors(2,:), 'LineWidth',1.5})
+ylabel('Isoflurane %', FontWeight='bold')
+ylim([0,2])
+
+% time bars
 plot_time_bars(start_times)
-y_lim = ylim();
-ylim([0,y_lim(2)])
+
+% x axis
+xlabel('Time relative to fMRI start (minutes)', FontWeight='bold')
+ax = gca;
+ax.YAxis(1).FontWeight='bold';
+ax.YAxis(2).FontWeight='bold';
+ax.XAxis.FontWeight='bold';
+xlim([-35 25])
 %% normalized to rate at fMRI start
-norm_rate = rates ./ rates(:,common_time == 0);
+% norm_rate = rates ./ rates(:,common_time == 0);
+% 
+% figure(3);  theme('light'); clf; hold on
+% shadedErrorBar(common_time,norm_rate, {@mean,@sem})
+% xlabel('Time relative to fMRI start (s)')
+% ylabel('Respiratory rate (normalized)')
+% plot_time_bars(start_times)
+% y_lim = ylim();
+% ylim([0,y_lim(2)])
 
-figure(3);  theme('light'); clf; hold on
-shadedErrorBar(common_time,norm_rate, {@mean,@sem})
-xlabel('Time relative to fMRI start (s)')
-ylabel('Respiratory rate (normalized)')
-plot_time_bars(start_times)
-y_lim = ylim();
-ylim([0,y_lim(2)])
 
-%% plot ISO%
-figure(4);  theme('light'); clf; hold on
-shadedErrorBar(common_time,iso, {@mean,@sem})
-xlabel('Time relative to fMRI start (s)')
-ylabel('Isoflurane %')
-plot_time_bars(start_times)
-y_lim = ylim();
-ylim([0,y_lim(2)])
 %%
 function plot_time_bars(t)
-t2_time = seconds(median(t.t2 - t.fMRI));
-t2_time = [t2_time, t2_time + 12 *60];
+t2_time = minutes(median(t.t2 - t.fMRI));
+t2_time = [t2_time, t2_time + 12];
 
-dti_time = seconds(median(t.dti - t.fMRI));
-dti_time = [dti_time, dti_time + 12 *60];
+dti_time = minutes(median(t.dti - t.fMRI));
+dti_time = [dti_time, dti_time + 12];
 
-fMRI_time = [0, 24.5 *60];
+fMRI_time = [0, 24.5];
 
 y_lim = ylim();
 y = [y_lim(2),y_lim(2)];
 
-plot(t2_time, y)
-plot(dti_time, y)
-plot(fMRI_time, y)
+plot(t2_time, y,'-', Color='black', LineWidth=2)
+plot(dti_time, y,'-', Color='black', LineWidth=2)
+plot(fMRI_time, y,'-', Color='black', LineWidth=2)
 
 y = y(1);
-text(mean(t2_time), y, 'T2', VerticalAlignment='bottom', HorizontalAlignment='center')
-text(mean(dti_time), y, 'DTI', VerticalAlignment='bottom', HorizontalAlignment='center')
-text(mean(fMRI_time), y, 'fMRI', VerticalAlignment='bottom', HorizontalAlignment='center')
+text(mean(t2_time), y, 'T2', VerticalAlignment='bottom', HorizontalAlignment='center', FontWeight='bold')
+text(mean(dti_time), y, 'DTI', VerticalAlignment='bottom', HorizontalAlignment='center', FontWeight='bold')
+text(mean(fMRI_time), y, 'fMRI', VerticalAlignment='bottom', HorizontalAlignment='center', FontWeight='bold')
 
 end
 
