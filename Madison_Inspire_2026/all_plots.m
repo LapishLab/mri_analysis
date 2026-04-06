@@ -39,6 +39,7 @@ day_info = removevars(day_info, "quinine_r31_60");
 preference = ethanol ./ (ethanol+water);
 E_per_kg = 0.1578 * ethanol ./ weight * 1000;
 W_per_kg = 0.1578 * water ./ weight * 1000;
+E_per_kg_per_hr = E_per_kg ./ day_info.duration';
 
 %% Prepare logical indices and colors for splitting rats
 % Male vs. Female
@@ -96,3 +97,22 @@ ylabel(y_lab)
 ylim(y_lim)
 
 %% %%%%%%%%%% Transition from IAP->LAP and reaction to reduced time %%%%%
+
+% X-axis is last IAP day and LAP days without quinine
+is_transition = day_info.duration==20 & day_info.quinine==0;
+is_transition(find(is_IAP, 1, 'last')) = true; % Also add last 1 day of IAP
+
+x = day_info.day(is_transition);
+
+% y-axis = preference (0-1)
+    % y_lab = 'Ethanol preference';
+    % y = preference(:, is_transition);
+    % y_lim = [0 1];
+% y-axis = ethanol intake (mg/kg/hr)
+    y_lab = 'Ethanol intake (mg/kg/hr)';
+    y = E_per_kg_per_hr(:, is_transition);
+    y_lim = [0 10];
+
+%% %%%%%%%%%% Quinine Sensitivity (compulsivity) %%%%%%%%%%%%%
+
+% X-groups are baseline (last 4 days of regular LAP), low-quinine, and high-quinine
