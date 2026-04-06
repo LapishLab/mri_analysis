@@ -36,16 +36,20 @@ is_IAP = day_info.duration==1440;
 sem = @(y) std(y, 'omitmissing') ./ sqrt(sum(~isnan(y)));
 nan_mean = @(y) mean(y, "omitmissing");
 %% %%%%%%%%%% Ethanol intake progression throughout IAP %%%%% 
+
+% % Y-axis is preference % %
 % y = preference(:, is_IAP);
 % y_lab = 'Ethanol preference';
 % y_lim = [0 1];
+% %                      % %
 
+% % Y-axis is ethanol mg/kg % %
 y = E_per_kg(:, is_IAP);
 y_lab = 'Ethanol intake (mg/kg)';
 y_lim = [0 10];
+% %                      % %
 
 x = day_info.day(is_IAP);
-
 clf;
 % male vs female
 subplot(2,1,1); hold on
