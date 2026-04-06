@@ -38,6 +38,7 @@ function [W, E, weight, day_conditions] = load_consumption(path, range)
     q_notes = string(notes{2:5,2:end});
     q_notes = extractAfter(extractBefore(q_notes,"uM quinine"), "+");
     q_vals = double(q_notes);
+    q_vals(isnan(q_vals)) = 0; % Nan mean 0 quinine was delivered
 
     %%
     dates = datetime(notes{1,2:end});
