@@ -15,6 +15,26 @@ ethanol = ethanol(:,good_days);
 weight = weight(:, good_days);
 day_info = day_info(good_days,:);
 
+%% Merge 2 days with counterbalanced quinine (discard no-quinine rat data) 
+good_data = true(size(ethanol)); % Start with assumption that all data is good
+
+drop_1_30 = day_info.quinine_r1_30==0 & day_info.quinine_r31_60>0;
+good_data(1:30, drop_1_30) = false;
+
+drop_31_60 = day_info.quinine_r31_60==0 & day_info.quinine_r1_30>0;
+good_data(31:60, drop_31_60) = false;
+
+% Extract good_data and reshape into correct 2D format
+water = reshape(water(good_data), height(rat_info), []);
+ethanol = reshape(ethanol(good_data), height(rat_info), []);
+weight = reshape(weight(good_data), height(rat_info), []);
+
+% Simplify day info to only keep 2nd day of counterbalance
+day_info.day(drop_31_60) = mean(day_info.day(drop_1_30 | drop_31_60)); % mark day as halfway between both days?
+day_info = day_info(~drop_1_30,:);
+day_info = renamevars(day_info, "quinine_r1_30", "quinine");
+day_info = removevars(day_info, "quinine_r31_60");
+
 %% Calculate metrics of interest
 preference = ethanol ./ (ethanol+water);
 E_per_kg = 0.1578 * ethanol ./ weight * 1000;
