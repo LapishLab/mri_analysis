@@ -209,7 +209,14 @@ high_quinine = (high_quinine ./ baseline) * 100;
 
 y_lab = 'Consumption (%)';
 
-saveas(gcf, 'fig3.svg')
+
+figure(5);clf
+histogram(baseline,20)
+xlabel("Ethanol consumption (mg/kg)")
+ylabel('counts')
+title("baseline")
+
+sufficient_baseline = baseline>.5;
 %% Plotting Low Qhinine
 figure(3); clf;
 sgtitle("Low-quinine")
@@ -219,7 +226,7 @@ y_lim = [0 150];
 % male vs female
 subplot(2,1,1); hold on
 x = ["Male", "Female"];
-y_cell = {y(is_male), y(~is_male)};
+y_cell = {y(is_male&sufficient_baseline), y(~is_male&sufficient_baseline)};
 raw_data_error_bar(x, y_cell, bar_funcs={nan_mean, sem},bar_color={m_color, f_color})
 ylabel(y_lab)
 ylim(y_lim)
@@ -228,7 +235,7 @@ yline(100, '--k')
 % Wistar vs P vs HAD1
 subplot(2,1,2); hold on
 x = ["Wistar", "P", "HAD1"];
-y_cell = {y(is_wis), y(is_p), y(is_had)};
+y_cell = {y(is_wis&sufficient_baseline), y(is_p&sufficient_baseline), y(is_had&sufficient_baseline)};
 raw_data_error_bar(x, y_cell, bar_funcs={nan_mean, sem}, bar_color={w_color, p_color, h_color})
 ylabel(y_lab)
 ylim(y_lim)
@@ -244,7 +251,7 @@ y_lim = [0 100];
 % male vs female
 subplot(2,1,1); hold on
 x = ["Male", "Female"];
-y_cell = {y(is_male), y(~is_male)};
+y_cell = {y(is_male&sufficient_baseline), y(~is_male&sufficient_baseline)};
 raw_data_error_bar(x, y_cell, bar_funcs={nan_mean, sem}, bar_color={m_color, f_color})
 ylabel(y_lab)
 ylim(y_lim)
@@ -253,7 +260,7 @@ yline(100, '--k')
 % Wistar vs P vs HAD1
 subplot(2,1,2); hold on
 x = ["Wistar", "P", "HAD1"];
-y_cell = {y(is_wis), y(is_p), y(is_had)};
+y_cell = {y(is_wis&sufficient_baseline), y(is_p&sufficient_baseline), y(is_had&sufficient_baseline)};
 raw_data_error_bar(x, y_cell, bar_funcs={nan_mean, sem}, bar_color={w_color, p_color, h_color})
 ylabel(y_lab)
 ylim(y_lim)
